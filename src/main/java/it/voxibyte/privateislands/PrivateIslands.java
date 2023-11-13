@@ -1,8 +1,11 @@
 package it.voxibyte.privateislands;
 
+import it.voxibyte.privateislands.command.IslandCommand;
 import it.voxibyte.privateislands.database.MysqlDatabase;
 import it.voxibyte.privateislands.island.IslandHandler;
 import it.voxibyte.privateislands.island.IslandRepository;
+import it.voxibyte.privateislands.menu.IslandMenu;
+import it.voxibyte.privateislands.menu.provider.IslandMenuProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class PrivateIslands extends JavaPlugin {
@@ -10,15 +13,24 @@ public final class PrivateIslands extends JavaPlugin {
     private MysqlDatabase mysqlDatabase;
     private IslandHandler islandHandler;
 
+    public static JavaPlugin getPlugin() {
+        return plugin;
+    }
+
     @Override
     public void onEnable() {
         plugin = this;
+
         saveDefaultConfig();
+        registerCommands();
 
         this.mysqlDatabase = initDatabase();
-        this.islandHandler = new IslandHandler(mysqlDatabase);
+
+        String islandTemplateWorld = getConfig().getString("island-template-world");
+        this.islandHandler = new IslandHandler(mysqlDatabase, islandTemplateWorld);
 
         this.islandHandler.loadIslands();
+        IslandMenu.init(islandHandler);
     }
 
     @Override
@@ -34,7 +46,7 @@ public final class PrivateIslands extends JavaPlugin {
         return new MysqlDatabase(url, username, password);
     }
 
-    public static JavaPlugin getPlugin() {
-        return plugin;
+    private void registerCommands() {
+        getCommand("island").setExecutor(new IslandCommand());
     }
 }

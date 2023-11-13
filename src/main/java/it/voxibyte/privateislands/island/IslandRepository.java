@@ -26,9 +26,26 @@ public class IslandRepository {
             preparedStatement.setString(2, island.getWorldUid().toString());
 
             int result = preparedStatement.executeUpdate();
+
+            preparedStatement.close();
             return result == 1;
         } catch (SQLException exception) {
             throw new PersistenceException("something went wrong saving island " + island.getOwnerUid().toString(), exception);
+        }
+    }
+
+    public boolean updateIsland(Island island, UUID uid) {
+        try(Connection connection = mysqlDatabase.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement("update islands set world = ? where owner = ?");
+            preparedStatement.setString(1, island.getWorldUid().toString());
+            preparedStatement.setString(2, island.getOwnerUid().toString());
+
+            int result = preparedStatement.executeUpdate();
+
+            preparedStatement.close();
+            return result == 1;
+        } catch (SQLException exception) {
+            throw new PersistenceException("something went wrong updating island " + island.getOwnerUid().toString(), exception);
         }
     }
 
@@ -45,6 +62,8 @@ public class IslandRepository {
 
                 loadedIslands.add(island);
             }
+            resultSet.close();
+            preparedStatement.close();
         } catch (SQLException exception) {
             throw new PersistenceException("something went wrong retrieving islands from database", exception);
         }
@@ -54,9 +73,10 @@ public class IslandRepository {
 
     private void createTable() {
         try(Connection connection = mysqlDatabase.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("create table islands(owner VARCHAR(255), world VARCHAR(255))");
+            PreparedStatement preparedStatement = connection.prepareStatement("create table if not exists islands(owner VARCHAR(255), world VARCHAR(255))");
 
             preparedStatement.executeUpdate();
+            preparedStatement.close();
         } catch (SQLException exception) {
             throw new PersistenceException("something went wrong creating islands table", exception);
         }
