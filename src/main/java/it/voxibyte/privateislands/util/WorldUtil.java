@@ -7,14 +7,13 @@ import org.bukkit.WorldCreator;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.UUID;
 
 public class WorldUtil {
 
     public static World copyWorld(String originalWorld, String newWorldName) {
         copyFileStructure(Bukkit.getWorld(originalWorld).getWorldFolder(), new File(Bukkit.getWorldContainer(), newWorldName));
-        new WorldCreator(newWorldName).createWorld();
-
-        return Bukkit.getWorld(newWorldName);
+        return new WorldCreator(newWorldName).createWorld();
     }
 
     private static void copyFileStructure(File source, File target){
@@ -47,4 +46,9 @@ public class WorldUtil {
         }
     }
 
+    public static void deleteWorld(UUID worldUid) {
+        World islandWorld = Bukkit.getWorld(worldUid);
+        Bukkit.getServer().unloadWorld(islandWorld, false);
+        islandWorld.getWorldFolder().delete();
+    }
 }

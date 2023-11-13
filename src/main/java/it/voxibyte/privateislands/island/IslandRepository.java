@@ -34,11 +34,10 @@ public class IslandRepository {
         }
     }
 
-    public boolean updateIsland(Island island, UUID uid) {
+    public boolean deleteIsland(Island island) {
         try(Connection connection = mysqlDatabase.getConnection()) {
-            PreparedStatement preparedStatement = connection.prepareStatement("update islands set world = ? where owner = ?");
-            preparedStatement.setString(1, island.getWorldUid().toString());
-            preparedStatement.setString(2, island.getOwnerUid().toString());
+            PreparedStatement preparedStatement = connection.prepareStatement("delete from islands where owner = ?");
+            preparedStatement.setString(1, island.getOwnerUid().toString());
 
             int result = preparedStatement.executeUpdate();
 

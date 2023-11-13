@@ -30,13 +30,18 @@ public class IslandHandler {
         if(!playerIsland.isPresent()) {
             return;
         }
+
         Island island = playerIsland.get();
+        WorldUtil.deleteWorld(island.getWorldUid());
 
-        World islandWorld = Bukkit.getWorld(island.getWorldUid());
-        islandWorld.getWorldFolder().delete();
+        executeAsync(() -> {
+            boolean deleted = this.islandRepository.deleteIsland(island);
 
-        islandRepository.updateIsland(island, islandWorld.getUID());
-        createIsland(player, false);
+            if(!deleted) throw new PersistenceException("unable to delete island " + island.getWorldUid());
+
+            this.loadedIslands.remove(island);
+            createIsland(player, true);
+        });
     }
 
     public void createIsland(final Player player, boolean save) {
