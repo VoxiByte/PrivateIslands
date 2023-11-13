@@ -1,0 +1,4 @@
+datasource:
+  url: jdbc:mysql://localhost:3306/privateislands
+  username: privateislands
+  password: password
