@@ -1,0 +1,4 @@
+name: PrivateIslands
+version: '${project.version}'
+main: it.voxibyte.privateislands.PrivateIslands
+api-version: '1.20'
