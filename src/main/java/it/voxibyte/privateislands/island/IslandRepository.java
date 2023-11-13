@@ -16,6 +16,7 @@ public class IslandRepository {
 
     public IslandRepository(final MysqlDatabase mysqlDatabase) {
         this.mysqlDatabase = mysqlDatabase;
+        createTable();
     }
 
     public boolean saveIsland(Island island) {
@@ -49,5 +50,15 @@ public class IslandRepository {
         }
 
         return loadedIslands;
+    }
+
+    private void createTable() {
+        try(Connection connection = mysqlDatabase.getConnection()) {
+            PreparedStatement preparedStatement = connection.prepareStatement("create table islands(owner VARCHAR(255), world VARCHAR(255))");
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException exception) {
+            throw new PersistenceException("something went wrong creating islands table", exception);
+        }
     }
 }

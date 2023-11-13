@@ -6,11 +6,13 @@ import it.voxibyte.privateislands.island.IslandRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class PrivateIslands extends JavaPlugin {
+    private static JavaPlugin plugin;
     private MysqlDatabase mysqlDatabase;
     private IslandHandler islandHandler;
 
     @Override
     public void onEnable() {
+        plugin = this;
         saveDefaultConfig();
 
         this.mysqlDatabase = initDatabase();
@@ -30,5 +32,9 @@ public final class PrivateIslands extends JavaPlugin {
         String password = this.getConfig().getString("datasource.password");
 
         return new MysqlDatabase(url, username, password);
+    }
+
+    public static JavaPlugin getPlugin() {
+        return plugin;
     }
 }
