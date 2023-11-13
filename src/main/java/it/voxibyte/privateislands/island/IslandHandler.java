@@ -2,6 +2,7 @@ package it.voxibyte.privateislands.island;
 
 import it.voxibyte.privateislands.database.MysqlDatabase;
 import it.voxibyte.privateislands.exception.PersistenceException;
+import it.voxibyte.privateislands.hook.VaultHook;
 import it.voxibyte.privateislands.util.WorldUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -16,11 +17,13 @@ import static it.voxibyte.privateislands.util.ThreadUtil.executeAsync;
 
 public class IslandHandler {
     private final IslandRepository islandRepository;
+    private final VaultHook vaultHook;
     private final List<Island> loadedIslands;
     private final String islandTemplateWorld;
 
     public IslandHandler(MysqlDatabase mysqlDatabase, String islandTemplateWorld) {
         this.islandRepository = new IslandRepository(mysqlDatabase);
+        this.vaultHook = new VaultHook();
         this.loadedIslands = new ArrayList<>();
         this.islandTemplateWorld = islandTemplateWorld;
     }
@@ -45,6 +48,10 @@ public class IslandHandler {
     }
 
     public void createIsland(final Player player, boolean save) {
+        boolean transactionDone = vaultHook.withdraw(player, 150);
+        if(!transactionDone)
+            player.sendMessage("Assicurati di avere almeno 150 monete per creare un'isola!");
+
         World generatedWorld = WorldUtil.copyWorld(islandTemplateWorld, player.getUniqueId().toString());
         Island island = IslandFactory.createIsland(player, generatedWorld.getUID());
 
